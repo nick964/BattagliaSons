@@ -14,8 +14,8 @@ export async function POST(req: Request) {
     from: process.env.CONTACT_FROM_EMAIL ?? "Contact Form <onboarding@resend.dev>",
     to: process.env.CONTACT_TO_EMAIL!,
     replyTo: email,
-    subject: `New message from ${firstName} ${lastName}`,
-    text: `Name: ${firstName} ${lastName}\nEmail: ${email}\n\n${message}`,
+    subject: `New message from the Battaglia & Sons website — ${firstName} ${lastName}`,
+    text: `You have a new contact form submission from the Battaglia & Sons Electric website.\n\nName: ${firstName} ${lastName}\nEmail: ${email}\n\nMessage:\n${message}`,
   });
 
   if (error) {
