@@ -1,7 +1,63 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+
+function CountUpStat({
+  target,
+  suffix,
+  label,
+}: {
+  target: number;
+  suffix: string;
+  label: string;
+}) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const duration = 1800;
+          const start = performance.now();
+
+          function tick(now: number) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * target));
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target]);
+
+  const display =
+    target >= 1000 ? count.toLocaleString() : count.toString();
+
+  return (
+    <div ref={ref} className="text-center">
+      <p className="text-3xl font-black text-[#54b435]">
+        {display}{suffix}
+      </p>
+      <p className="mt-1 text-sm font-bold text-gray-600">{label}</p>
+    </div>
+  );
+}
 
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
@@ -89,6 +145,65 @@ const TESTIMONIALS = [
     text: "The team at Battaglia & Sons did a fantastic job installing new outlets and lighting in our office. Nick's work was clean, fast, and the new setup has greatly improved our workspace. Highly recommend their services!",
   },
 ];
+
+function ParallaxCTA() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    const section = sectionRef.current;
+    const img = imgRef.current;
+    if (!section || !img) return;
+
+    const rect = section.getBoundingClientRect();
+    const viewH = window.innerHeight;
+
+    // Only calculate when section is near the viewport
+    if (rect.bottom < 0 || rect.top > viewH) return;
+
+    // How far the section center is from the viewport center
+    const offset = (rect.top + rect.height / 2 - viewH / 2) * 0.35;
+    img.style.transform = `translateY(${offset}px)`;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // set initial position
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  return (
+    <section ref={sectionRef} className="relative overflow-hidden py-24">
+      {/* Parallax background */}
+      <div ref={imgRef} className="absolute inset-0 scale-125 will-change-transform">
+        <Image
+          src="/images/hero.jpg"
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100vw"
+        />
+      </div>
+      {/* Green overlay */}
+      <div className="absolute inset-0 bg-[#379237]/80" />
+      {/* Content */}
+      <div className="relative z-10 mx-auto max-w-6xl px-6 text-center">
+        <h2 className="mb-4 text-3xl font-black text-white md:text-4xl">
+          Don&apos;t Know What To Start With?
+        </h2>
+        <p className="mb-8 text-xl font-semibold text-white/90">
+          Get A Solution For All Electrical Needs
+        </p>
+        <a
+          href="#contact"
+          className="inline-block rounded-full bg-white px-10 py-4 text-lg font-black text-[#54b435] transition-colors hover:bg-[#edfbe2]"
+        >
+          Contact Us Today
+        </a>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -269,21 +384,10 @@ export default function Home() {
 
             {/* Stats */}
             <div className="mt-16 grid grid-cols-2 gap-6 rounded-2xl bg-[#edfbe2] p-8 md:grid-cols-4">
-              {[
-                { value: "20+", label: "Years In Business" },
-                { value: "500+", label: "Happy Clients" },
-                { value: "1,000+", label: "Projects Completed" },
-                { value: "100%", label: "Certified" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <p className="text-3xl font-black text-[#54b435]">
-                    {stat.value}
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-gray-600">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
+              <CountUpStat target={20} suffix="+" label="Years In Business" />
+              <CountUpStat target={500} suffix="+" label="Happy Clients" />
+              <CountUpStat target={1000} suffix="+" label="Projects Completed" />
+              <CountUpStat target={100} suffix="%" label="Certified" />
             </div>
           </div>
         </section>
@@ -403,22 +507,7 @@ export default function Home() {
         </section>
 
         {/* ── CTA Banner ───────────────────────────────────────────── */}
-        <section className="bg-[#54b435] py-16">
-          <div className="mx-auto max-w-6xl px-6 text-center">
-            <h2 className="mb-4 text-3xl font-black text-white md:text-4xl">
-              Don&apos;t Know What To Start With?
-            </h2>
-            <p className="mb-8 text-xl font-semibold text-white/90">
-              Get A Solution For All Electrical Needs
-            </p>
-            <a
-              href="#contact"
-              className="inline-block rounded-full bg-white px-10 py-4 text-lg font-black text-[#54b435] transition-colors hover:bg-[#edfbe2]"
-            >
-              Contact Us Today
-            </a>
-          </div>
-        </section>
+        <ParallaxCTA />
 
         {/* ── Contact ──────────────────────────────────────────────── */}
         <section id="contact" className="bg-white py-20">
