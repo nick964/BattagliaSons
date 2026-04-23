@@ -565,10 +565,10 @@ export default function Home() {
                   <div>
                     <p className="font-bold text-gray-900">Email</p>
                     <a
-                      href="mailto:battagliasonselectric@gmail.com"
+                      href="mailto:nick@battagliasonselectric.com"
                       className="text-[#54b435] hover:underline"
                     >
-                      battagliasonselectric@gmail.com
+                      nick@battagliasonselectric.com
                     </a>
                   </div>
                 </div>
@@ -686,10 +686,10 @@ export default function Home() {
                 <p>
                   <span className="font-bold text-white">Email: </span>
                   <a
-                    href="mailto:battagliasonselectric@gmail.com"
+                    href="mailto:nick@battagliasonselectric.com"
                     className="hover:text-[#54b435]"
                   >
-                    battagliasonselectric@gmail.com
+                    nick@battagliasonselectric.com
                   </a>
                 </p>
               </div>
